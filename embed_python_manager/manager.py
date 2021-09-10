@@ -3,6 +3,7 @@ from os.path import exists
 
 from . import pip_suits
 from . import tk_suits
+from .downloader import EmbedPythonDownloader
 from .path_model import assets_model
 from .pyversion import PyVersion
 
@@ -19,12 +20,6 @@ class EmbedPythonManager:
         self.python = f'{self.model.pyversion}/python.exe'
         self.pythonw = f'{self.model.pyversion}/pythonw.exe'
     
-    def download(self):
-        from .downloader import EmbedPythonDownloader
-        dl = EmbedPythonDownloader()
-        dl.main(self.pyversion)
-        del EmbedPythonManager, dl
-    
     def copy_to(self, dst_dir):
         shutil.copytree(self.model.pyversion, dst_dir)
     
@@ -32,9 +27,8 @@ class EmbedPythonManager:
         shutil.move(self.model.pyversion, dst_dir)
     
     def deploy(self, add_pip_suits=True, add_tk_suits=False):
-        from .downloader import EmbedPythonDownloader
         dl = EmbedPythonDownloader()
-        dl.main(self.pyversion)
+        dl.main(self.pyversion, disable_pth_file=True)
         
         if add_pip_suits:
             pip_suits.download_setuptools(self.pyversion)
@@ -53,6 +47,9 @@ class EmbedPythonManager:
                 ))
         ):
             tk_suits.copy_tkinter(d)
+    
+    def download(self):
+        self.deploy(False, False)
     
     # --------------------------------------------------------------------------
     # status

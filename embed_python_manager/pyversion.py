@@ -1,6 +1,10 @@
 class PyVersion:
     
     def __init__(self, version: str):
+        """
+        Args:
+            version: str['python27', 'python38', 'python39', ...]
+        """
         self._version = version
         a, b, c, *_ = (version + '.0.0.0').split('.')
         self.major = int(a)

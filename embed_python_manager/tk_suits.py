@@ -4,7 +4,7 @@ from shutil import copytree
 from .path_model import assets_model
 
 
-def copy_tkinter(system_python_dir, dst_dir=assets_model.pyversion):
+def copy_tkinter(system_python_dir, dst_dir=assets_model.python_dir):
     """
     Only used for building project from source code.
     

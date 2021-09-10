@@ -1,5 +1,6 @@
 import shutil
 from os.path import exists
+from typing import Union
 
 from . import pip_suits
 from . import tk_suits
@@ -10,36 +11,45 @@ from .pyversion import PyVersion
 
 class EmbedPythonManager:
     
-    def __init__(self, pyversion: PyVersion):
-        self.pyversion = pyversion
+    def __init__(self, pyversion: Union[str, PyVersion]):
+        if isinstance(pyversion, str):
+            self.pyversion = PyVersion(pyversion)
+        else:
+            self.pyversion = pyversion
         
         assets_model.indexing_dirs(pyversion)
         assets_model.build_dirs()
         self.model = assets_model
         
-        self.python = f'{self.model.pyversion}/python.exe'
-        self.pythonw = f'{self.model.pyversion}/pythonw.exe'
+        self.python = f'{self.model.python_dir}/python.exe'
+        self.pythonw = f'{self.model.python_dir}/pythonw.exe'
     
     def copy_to(self, dst_dir):
-        shutil.copytree(self.model.pyversion, dst_dir)
+        shutil.copytree(self.model.python_dir, dst_dir)
     
     def move_to(self, dst_dir):
-        shutil.move(self.model.pyversion, dst_dir)
+        shutil.move(self.model.python_dir, dst_dir)
     
-    def deploy(self, add_pip_suits=True, add_tk_suits=False):
+    def deploy(self, add_pip_suits=True, add_pip_scripts=True,
+               add_tk_suits=False):
         dl = EmbedPythonDownloader()
         dl.main(self.pyversion, disable_pth_file=True)
         
         if add_pip_suits:
-            pip_suits.download_setuptools(self.pyversion)
-            pip_suits.download_pip_src(self.pyversion)
-            pip_suits.download_pip(self.pyversion)
-            pip_suits.download_urllib3_compatible(self.pyversion)
+            if not self.has_setuptools:
+                pip_suits.download_setuptools(self.pyversion)
+                pip_suits.get_setuptools()
             
-            pip_suits.get_setuptools()
-            pip_suits.get_pip_scripts()
-            pip_suits.get_pip()
-            pip_suits.replace_urllib3()
+            if add_pip_scripts and not self.has_pip_scripts:
+                pip_suits.download_pip_src(self.pyversion)
+                pip_suits.get_pip_scripts()
+                
+            if not self.has_pip:
+                pip_suits.download_pip(self.pyversion)
+                pip_suits.get_pip()
+            
+                pip_suits.download_urllib3_compatible(self.pyversion)
+                pip_suits.replace_urllib3()
         
         if add_tk_suits and (
                 d := input('Input System {} directory (abspath only): '.format(
@@ -67,5 +77,5 @@ class EmbedPythonManager:
         return exists(self.model.setuptools)
     
     @property
-    def has_pip_script(self):
+    def has_pip_scripts(self):
         return exists(self.model.pip_script)

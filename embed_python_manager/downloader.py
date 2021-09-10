@@ -8,6 +8,7 @@ from zipfile import ZipFile
 from lk_logger import lk
 from lk_utils import loads
 
+from .env import SYSTEM
 from .path_model import assets_model
 from .path_model import prj_model
 
@@ -15,12 +16,15 @@ from .path_model import prj_model
 class EmbedPythonDownloader:
     
     def __init__(self, source_filename='www_python_org.yml',
-                 dl_dir=assets_model.pyversion):
+                 dl_dir=assets_model.python_dir):
         self.source = loads(f'{prj_model.source_list}/{source_filename}')
         self.dl_dir = dl_dir
     
+    def change_source(self):
+        pass
+    
     def get_download_link(self, pyversion):
-        return self.source[pyversion]
+        return self.source[SYSTEM][pyversion]
     
     def main(self, pyversion, disable_pth_file=True):
         link = self.get_download_link(pyversion)

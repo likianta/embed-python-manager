@@ -2,9 +2,9 @@ from os import mkdir
 from os.path import dirname
 from os.path import exists
 
-from .pyversion import PyVersion
 from .env import ASSETS_ENTRY
 from .env import SYSTEM
+from .pyversion import PyVersion
 
 
 class ProjectPathModel:
@@ -33,12 +33,15 @@ class AssetsPathModel:
     
     # noinspection PyAttributeOutsideInit
     def indexing_dirs(self, pyversion):
-        self.pyversion = f'{self.system}/{pyversion}'
-        self.python = f'{self.pyversion}/python.exe'
-        self.python_pth = f'{self.pyversion}/{pyversion.v0}._pth'
+        self.pyversion = pyversion
         
-        self.scripts = f'{self.pyversion}/scripts'
-        self.lib = f'{self.pyversion}/lib'
+        self.python_dir = f'{self.system}/{pyversion}'
+        self.python = f'{self.python_dir}/python.exe'
+        self.python_pth = f'{self.python_dir}/{pyversion.v0}._pth'
+        
+        self.dlls = f'{self.python_dir}/dlls'
+        self.scripts = f'{self.python_dir}/scripts'
+        self.lib = f'{self.python_dir}/lib'
         self.site_packages = f'{self.lib}/site-packages'
         
         self.setuptools = f'{self.site_packages}/setuptools'
@@ -52,22 +55,30 @@ class AssetsPathModel:
         self.pip_src_in_pip_suits = f'{current_pip_suits}/pip_src'
         self.pip_in_pip_suits = f'{current_pip_suits}/pip'
         self.urllib3_in_pip_suits = f'{current_pip_suits}/urllib3'
-        
+    
     def build_dirs(self):
-        for d in (
-                self.assets,
-                self.embed_python,
-                self.pip_suits,
-                self.tk_suits,
-                self.pip_suits_py2,
-                self.pip_suits_py3,
-                self.tk_suits_py2,
-                self.tk_suits_py3,
-                self.system,
-                self.pyversion,
-        ):
-            if exists(d):
-                mkdir(d)
+        if not exists(self.assets):
+            mkdir(self.assets)
+            
+            mkdir(self.embed_python)
+            mkdir(self.system)
+            
+            mkdir(self.pip_suits)
+            mkdir(self.pip_suits_py2)
+            mkdir(self.pip_suits_py3)
+            
+            mkdir(self.tk_suits)
+            mkdir(self.tk_suits_py2)
+            mkdir(self.tk_suits_py3)
+        
+        if not exists(self.python_dir):
+            mkdir(self.python_dir)
+            
+            mkdir(self.dlls)
+            mkdir(self.scripts)
+            mkdir(self.lib)
+            
+            mkdir(self.site_packages)
 
 
 prj_model = ProjectPathModel()

@@ -1,11 +1,10 @@
 from shutil import copyfile
 from shutil import copytree
 
-from ..typehint import TPathStruct
-from ..utils import mklinks
+from .path_model import assets_model
 
 
-def copy_tkinter(system_python_dir, dst_dir):
+def copy_tkinter(system_python_dir, dst_dir=assets_model.pyversion):
     """
     Only used for building project from source code.
     
@@ -27,5 +26,5 @@ def copy_tkinter(system_python_dir, dst_dir):
         copyfile(i, o)
 
 
-def get_tkinter(assets_struct: TPathStruct, dst_dir):
-    return mklinks(assets_struct.tkinter, dst_dir)
+# def get_tkinter(assets_struct: TPathStruct, dst_dir):
+#     return mklinks(assets_struct.tkinter, dst_dir)

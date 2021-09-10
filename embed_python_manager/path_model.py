@@ -2,7 +2,7 @@ from os import mkdir
 from os.path import dirname
 from os.path import exists
 
-from .manager import PyVersion
+from .pyversion import PyVersion
 from .env import ASSETS_ENTRY
 from .env import SYSTEM
 
@@ -34,6 +34,7 @@ class AssetsPathModel:
     # noinspection PyAttributeOutsideInit
     def indexing_dirs(self, pyversion):
         self.pyversion = f'{self.system}/{pyversion}'
+        self.python = f'{self.pyversion}/python.exe'
         self.python_pth = f'{self.pyversion}/{pyversion.v0}._pth'
         
         self.scripts = f'{self.pyversion}/scripts'
@@ -42,12 +43,15 @@ class AssetsPathModel:
         
         self.setuptools = f'{self.site_packages}/setuptools'
         self.pip = f'{self.site_packages}/pip'
+        self.urllib3 = f'{self.pip}/_vendor/urllib3'
+        self.pip_egg = f'{self.site_packages}/'
         self.pip_script = f'{self.scripts}/pip.exe'
         
         current_pip_suits = f'{self.pip_suits}/{pyversion.v0[:-1]}'
         self.setuptools_in_pip_suits = f'{current_pip_suits}/setuptools'
-        self.pip_in_pip_suits = f'{current_pip_suits}/pip'
         self.pip_src_in_pip_suits = f'{current_pip_suits}/pip_src'
+        self.pip_in_pip_suits = f'{current_pip_suits}/pip'
+        self.urllib3_in_pip_suits = f'{current_pip_suits}/urllib3'
         
     def build_dirs(self):
         for d in (

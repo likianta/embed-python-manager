@@ -1,57 +1,20 @@
 import shutil
 from os.path import exists
 
-
-class PyVersion:
-    
-    def __init__(self, version: str):
-        self._version = version
-        a, b, c, *_ = (version + '.0.0.0').split('.')
-        self.major = int(a)
-        self.minor = int(b)
-        self.patch = int(c)
-    
-    def __str__(self):
-        return self._version
-    
-    @property
-    def v(self):
-        """
-        Returns:
-            self._version = 'python39' -> 'python39'
-            self._version = 'python39-32' -> 'python39-32'
-        """
-        return self._version
-    
-    @property
-    def v0(self):
-        """
-        Returns:
-            self._version = 'python39' -> 'python39'
-            self._version = 'python39-32' -> 'python39'
-        """
-        if '-' in self._version:
-            return self._version.split('-')[0]
-        else:
-            return self._version
-    
-    @property
-    def v1(self):
-        """
-        Returns:
-            self._version = 'python39' -> '39'
-            self._version = 'python39-32' -> '39-32'
-        """
-        return self._version.removeprefix('python')
+from . import pip_suits
+from . import tk_suits
+from .path_model import assets_model
+from .pyversion import PyVersion
 
 
 class EmbedPythonManager:
     
     def __init__(self, pyversion: PyVersion):
-        from .path_model import AssetsPathModel
         self.pyversion = pyversion
-        self.model = AssetsPathModel(pyversion)
-        self.model.build_dirs()
+        
+        assets_model.indexing_dirs(pyversion)
+        assets_model.build_dirs()
+        self.model = assets_model
         
         self.python = f'{self.model.pyversion}/python.exe'
         self.pythonw = f'{self.model.pyversion}/pythonw.exe'
@@ -64,6 +27,32 @@ class EmbedPythonManager:
     
     def copy_to(self, dst_dir):
         shutil.copytree(self.model.pyversion, dst_dir)
+    
+    def move_to(self, dst_dir):
+        shutil.move(self.model.pyversion, dst_dir)
+    
+    def deploy(self, add_pip_suits=True, add_tk_suits=False):
+        from .downloader import EmbedPythonDownloader
+        dl = EmbedPythonDownloader()
+        dl.main(self.pyversion)
+        
+        if add_pip_suits:
+            pip_suits.download_setuptools(self.pyversion)
+            pip_suits.download_pip_src(self.pyversion)
+            pip_suits.download_pip(self.pyversion)
+            pip_suits.download_urllib3_compatible(self.pyversion)
+            
+            pip_suits.get_setuptools()
+            pip_suits.get_pip_scripts()
+            pip_suits.get_pip()
+            pip_suits.replace_urllib3()
+        
+        if add_tk_suits and (
+                d := input('Input System {} directory (abspath only): '.format(
+                    str(self.pyversion).title()
+                ))
+        ):
+            tk_suits.copy_tkinter(d)
     
     # --------------------------------------------------------------------------
     # status

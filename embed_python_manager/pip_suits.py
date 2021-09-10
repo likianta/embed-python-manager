@@ -7,16 +7,23 @@ need also to run `get_pip` after that.
 
 References:
     ~/docs/depsland-venv-setup.md
+    
+FIXME:
+    All static links in this script should be replaced with source-selectable
+    links.
 """
+import os
+import shutil
 from os.path import exists
-from shutil import rmtree
 
-from lk_utils import run_cmd_args
+from lk_logger import lk
+from lk_utils import find_dirs
+from lk_utils import run_cmd_shell
 
-
+from .downloader import download
+from .downloader import extract
+from .pyversion import PyVersion
 from .path_model import assets_model
-from .manager import PyVersion
-from .downloader import download, extract
 
 
 def download_setuptools(pyversion: PyVersion):
@@ -37,8 +44,8 @@ def download_setuptools(pyversion: PyVersion):
     
     file = download(link, assets_model.setuptools_in_pip_suits + '.whl')
     extract(file, assets_model.setuptools_in_pip_suits)
-    
-    
+
+
 def download_pip_src(pyversion: PyVersion):
     if pyversion.major == 2:
         # name = 'pip-20.3.4.tar.gz'
@@ -57,8 +64,8 @@ def download_pip_src(pyversion: PyVersion):
     
     file = download(link, assets_model.pip_src_in_pip_suits + '.tar.gz')
     extract(file, assets_model.pip_src_in_pip_suits, type_='tar')
-    
-    
+
+
 def download_pip(pyversion: PyVersion):
     if pyversion.major == 2:
         # name = 'pip-20.3.4-py2.py3-none-any.whl'
@@ -79,27 +86,74 @@ def download_pip(pyversion: PyVersion):
     extract(file, assets_model.pip_in_pip_suits)
 
 
+def download_urllib3_compatible(pyversion: PyVersion):
+    """
+    References:
+        https://blog.csdn.net/shizheng_Li/article/details/115838420
+    """
+    if pyversion.major == 2:
+        lk.logt('[I3412]', 'no need to download urllib3 compatible version')
+        return
+    
+    # name = 'urllib3-1.25.9-py2.py3-none-any.whl'
+    link = 'https://pypi.tuna.tsinghua.edu.cn/packages/e1/e5/df302e8017440f11' \
+           '1c11cc41a6b432838672f5a70aa29227bf58149dc72f/urllib3-1.25.9-py2.p' \
+           'y3-none-any.whl#sha256=88206b0eb87e6d677d424843ac5209e3fb9d0190d0' \
+           'ee169599165ec25e9d9115'
+    file = download(link, assets_model.urllib3_in_pip_suits + '.whl')
+    extract(file, assets_model.urllib3_in_pip_suits)
+
+
+# ------------------------------------------------------------------------------
+
 def get_setuptools():
-    pass
-    
-    
-def get_pip_scripts(dst_dir):
-    mklinks(assets_struct.setuptools, dst_dir)
-    
-    run_cmd_args('cd', '')
-    send_cmd('cd {pip_src_dir} & {python} setup.py install'.format(
-        pip_src_dir=assets_struct.pip_src,
-        python=src_struct.interpreter,
-        pip_src=assets_struct.pip_src,
+    out = []
+    dir_i = assets_model.setuptools_in_pip_suits
+    dir_o = assets_model.site_packages
+    for dp, dn in find_dirs(dir_i, fmt='zip'):
+        shutil.copytree(dp, x := f'{dir_o}/{dn}')
+        out.append(x)
+    for fp, fn in find_dirs(dir_i, fmt='zip'):
+        shutil.copyfile(fp, x := f'{dir_o}/{fn}')
+        out.append(x)
+    return out
+
+
+def get_pip_scripts():
+    run_cmd_shell('cd "{pip_src_dir}" & "{python}" setup.py install'.format(
+        pip_src_dir=assets_model.pip_src_in_pip_suits,
+        python=assets_model.python,
     ).replace('/', '\\'))
     
-    assert exists(f'{src_struct.scripts}/pip.exe')
+    assert exists(assets_model.pip_script)
     
-    rmtree(src_struct.site_packages + '/' + assets_struct.pip_egg)
+    # find and remove pip egg dir in site-packages
+    for dp, dn in find_dirs(assets_model.site_packages, fmt='zip'):
+        if dn.startswith('pip-') and dn.endswith('.egg'):
+            shutil.rmtree(dp)
+            break
+    
+    return assets_model.pip_script
 
 
-def get_pip(dst_dir):
+def get_pip():
     out = []
-    out.extend(mklinks(assets_struct.setuptools, dst_dir, exist_ok=True))
-    out.extend(mklinks(assets_struct.pip, dst_dir, exist_ok=False))
+    dir_i = assets_model.pip_in_pip_suits
+    dir_o = assets_model.site_packages
+    for dp, dn in find_dirs(dir_i, fmt='zip'):
+        shutil.copytree(dp, x := f'{dir_o}/{dn}')
+        out.append(x)
+    for fp, fn in find_dirs(dir_i, fmt='zip'):
+        shutil.copyfile(fp, x := f'{dir_o}/{fn}')
+        out.append(x)
     return out
+
+
+def replace_urllib3():
+    dir_i = assets_model.urllib3_in_pip_suits
+    dir_o = assets_model.urllib3
+    if not exists(dir_i):
+        lk.logt('[D4214]', 'urllib3 not downloaded')
+        return
+    os.rename(dir_o, dir_o + '_bak')
+    shutil.copytree(dir_i, dir_o)

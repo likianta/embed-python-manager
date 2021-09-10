@@ -1,2 +1,2 @@
-from .manager import EmbedPythonManager
 from .downloader import EmbedPythonDownloader
+from .manager import EmbedPythonManager

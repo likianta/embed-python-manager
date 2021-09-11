@@ -1,5 +1,6 @@
 import os
 import tarfile
+from os.path import dirname
 from os.path import exists
 from time import strftime
 from urllib import request
@@ -11,6 +12,7 @@ from lk_utils import loads
 from .env import SYSTEM
 from .path_model import assets_model
 from .path_model import prj_model
+from .pyversion import PyVersion
 
 
 class EmbedPythonDownloader:
@@ -20,23 +22,52 @@ class EmbedPythonDownloader:
         self.source = loads(f'{prj_model.source_list}/{source_filename}')
         self.dl_dir = dl_dir
     
-    def change_source(self):
-        pass
+    def change_source(self, source):
+        """
+        
+        Args:
+            source: Union[str, dict]
+                str: './source_list/*.yml', just give the filename (with
+                    suffix), not the full or relative path.
+                    examples:
+                        'npm_taobao_org.yml'
+                        'www_python_org.yml'
+                dict: {<system>: {<pyversion>: <link>, ...}, ...}
+        """
+        if isinstance(source, str):
+            source = loads(f'{prj_model.source_list}/{source}')
+        self.source = source
     
-    def get_download_link(self, pyversion):
-        return self.source[SYSTEM][pyversion]
+    def get_download_link(self, pyversion: PyVersion):
+        return self.source[SYSTEM][pyversion.v]
     
-    def main(self, pyversion, disable_pth_file=True):
+    def main(self, pyversion: PyVersion, disable_pth_file=True):
+        """
+        Tree:
+            ASSETS_ENTRY
+            |= embed_python
+                |= windows
+                    |- python-3.9.5-embed-amd64.zip  # 1. download zip
+                    |= python39  # 2. extracted here (this is `self.dl_dir`)
+                        |- ...
+                        |- python39._pth  # 3. rename it to 'python39._pth.bak'
+        """
         link = self.get_download_link(pyversion)
         
-        filename = link.rsplit("/")[-1]
-        file_zip = f'{self.dl_dir}/{filename}'
+        # filename = link.rsplit("/")[-1]
+        file_i = f'{dirname(self.dl_dir)}/{link.rsplit("/")[-1]}'
+        dir_o = self.dl_dir
         
-        if not exists(file_zip):
-            download(link, file_zip)
+        if not exists(file_i):
+            download(link, file_i)
         
-        if not exists(dir_o := f'{self.dl_dir}/{filename}'):
-            extract(file_zip, dir_o)
+        if not exists(dir_o):  # note: do not create empty dirs in
+            #   `~.path_model.build_dirs` stage.
+            extract(file_i, dir_o)
+            os.mkdir(f'{dir_o}/dlls')
+            os.mkdir(f'{dir_o}/lib')
+            os.mkdir(f'{dir_o}/lib/site-packages')
+            os.mkdir(f'{dir_o}/scripts')
         
         if disable_pth_file:
             self.disable_pth_file(dir_o, pyversion)
@@ -76,10 +107,10 @@ def download(link, file):
         #       ref: https://stackoverflow.com/questions/34950201/pycharm
         #            -print-end-r-statement-not-working
     
-    lk.loga('downloading', link)
+    lk.loga('downloading', link, file)
     # https://blog.csdn.net/weixin_39790282/article/details/90170218
     request.urlretrieve(link, file, _update_progress)
-    lk.loga('done')
+    print(' --> done')  # this message will be added to the end of progress.
     
     return file
 

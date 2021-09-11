@@ -1,15 +1,20 @@
+import re
+
+
 class PyVersion:
     
     def __init__(self, version: str):
         """
         Args:
-            version: str['python27', 'python38', 'python39', ...]
+            version: str['python27', 'python38', 'python39',
+                         'python27-32', 'python38-32', 'python39-32', ...]
         """
         self._version = version
-        a, b, c, *_ = (version + '.0.0.0').split('.')
-        self.major = int(a)
-        self.minor = int(b)
-        self.patch = int(c)
+        assert re.match(r'^python[23]\d+(?:-32)?', version), \
+            ('Illegal version pattern!', version)
+        self.major = int(version[6])  # 2 or 3
+        self.minor = int(version.split('-')[0][7:])
+        #   0, 1, 2, ..., 9, 10 ('python310'), ...
     
     def __str__(self):
         return self._version
@@ -24,7 +29,7 @@ class PyVersion:
         return self._version
     
     @property
-    def v0(self):
+    def v_prefix(self):
         """
         Returns:
             self._version = 'python39' -> 'python39'
@@ -36,7 +41,7 @@ class PyVersion:
             return self._version
     
     @property
-    def v1(self):
+    def v_suffix(self):
         """
         Returns:
             self._version = 'python39' -> '39'

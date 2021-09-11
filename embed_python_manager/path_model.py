@@ -37,7 +37,7 @@ class AssetsPathModel:
         
         self.python_dir = f'{self.system}/{pyversion}'
         self.python = f'{self.python_dir}/python.exe'
-        self.python_pth = f'{self.python_dir}/{pyversion.v0}._pth'
+        self.python_pth = f'{self.python_dir}/{pyversion.v_prefix}._pth'
         
         self.dlls = f'{self.python_dir}/dlls'
         self.scripts = f'{self.python_dir}/scripts'
@@ -50,7 +50,7 @@ class AssetsPathModel:
         self.pip_egg = f'{self.site_packages}/'
         self.pip_script = f'{self.scripts}/pip.exe'
         
-        current_pip_suits = f'{self.pip_suits}/{pyversion.v0[:-1]}'
+        current_pip_suits = f'{self.pip_suits}/python{pyversion.major}'
         self.setuptools_in_pip_suits = f'{current_pip_suits}/setuptools'
         self.pip_src_in_pip_suits = f'{current_pip_suits}/pip_src'
         self.pip_in_pip_suits = f'{current_pip_suits}/pip'
@@ -71,14 +71,14 @@ class AssetsPathModel:
             mkdir(self.tk_suits_py2)
             mkdir(self.tk_suits_py3)
         
-        if not exists(self.python_dir):
-            mkdir(self.python_dir)
-            
-            mkdir(self.dlls)
-            mkdir(self.scripts)
-            mkdir(self.lib)
-            
-            mkdir(self.site_packages)
+        # if not exists(self.python_dir):
+        #     mkdir(self.python_dir)
+        #
+        #     mkdir(self.dlls)
+        #     mkdir(self.scripts)
+        #     mkdir(self.lib)
+        #
+        #     mkdir(self.site_packages)
 
 
 prj_model = ProjectPathModel()

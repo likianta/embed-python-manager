@@ -16,24 +16,19 @@ class EmbedPythonManager:
             self.pyversion = PyVersion(pyversion)
         else:
             self.pyversion = pyversion
-        
-        assets_model.indexing_dirs(pyversion)
+            
+        assets_model.indexing_dirs(self.pyversion)
         assets_model.build_dirs()
         self.model = assets_model
-        
+
+        self._downloader = EmbedPythonDownloader(dl_dir=self.model.python_dir)
+
         self.python = f'{self.model.python_dir}/python.exe'
         self.pythonw = f'{self.model.python_dir}/pythonw.exe'
     
-    def copy_to(self, dst_dir):
-        shutil.copytree(self.model.python_dir, dst_dir)
-    
-    def move_to(self, dst_dir):
-        shutil.move(self.model.python_dir, dst_dir)
-    
     def deploy(self, add_pip_suits=True, add_pip_scripts=True,
                add_tk_suits=False):
-        dl = EmbedPythonDownloader()
-        dl.main(self.pyversion, disable_pth_file=True)
+        self._downloader.main(self.pyversion, disable_pth_file=True)
         
         if add_pip_suits:
             if not self.has_setuptools:
@@ -60,6 +55,15 @@ class EmbedPythonManager:
     
     def download(self):
         self.deploy(False, False)
+
+    def copy_to(self, dst_dir):
+        shutil.copytree(self.model.python_dir, dst_dir)
+
+    def move_to(self, dst_dir):
+        shutil.move(self.model.python_dir, dst_dir)
+
+    def change_source(self, source):
+        self._downloader.change_source(source)
     
     # --------------------------------------------------------------------------
     # status

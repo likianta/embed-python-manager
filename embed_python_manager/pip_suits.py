@@ -24,8 +24,8 @@ from lk_utils import run_cmd_shell
 
 from .downloader import download
 from .downloader import extract
-from .pyversion import PyVersion
 from .path_model import assets_model
+from .pyversion import PyVersion
 
 """ Notice of Extracting whl/tar Files
 
@@ -48,9 +48,12 @@ Example:
     |
     |
     |- setuptools-58.0.4-py3-none-any.whl  # 3.1
-    |= setuptools  # 3.2
+    |= setuptools  # 3.2 (notice there're four dirs and one file)
+        |= _distutils_hack
+        |= pkg_resources
         |= setuptools
         |= setuptools-58.0.4.dist-info
+        |- distutils-precedence.pth
     |
     |
     |- urllib3-1.25.9-py2.py3-none-any.whl  # 4.1
@@ -145,16 +148,10 @@ def download_urllib3_compatible(pyversion: PyVersion):
 # ------------------------------------------------------------------------------
 
 def get_setuptools():
-    out = []
-    dir_i = assets_model.setuptools_in_pip_suits + '/' + 'setuptools'
-    dir_o = assets_model.site_packages
-    for dp, dn in find_dirs(dir_i, fmt='zip'):
-        shutil.copytree(dp, x := f'{dir_o}/{dn}')
-        out.append(x)
-    for fp, fn in find_files(dir_i, fmt='zip'):
-        shutil.copyfile(fp, x := f'{dir_o}/{fn}')
-        out.append(x)
-    return out
+    return _copy_resources(
+        assets_model.setuptools_in_pip_suits,
+        assets_model.site_packages,
+    )
 
 
 def get_pip_scripts():
@@ -175,23 +172,39 @@ def get_pip_scripts():
 
 
 def get_pip():
-    out = []
-    dir_i = assets_model.pip_in_pip_suits + '/' + 'pip'
-    dir_o = assets_model.site_packages
-    for dp, dn in find_dirs(dir_i, fmt='zip'):
-        shutil.copytree(dp, x := f'{dir_o}/{dn}')
-        out.append(x)
-    for fp, fn in find_files(dir_i, fmt='zip'):
-        shutil.copyfile(fp, x := f'{dir_o}/{fn}')
-        out.append(x)
-    return out
+    return _copy_resources(
+        assets_model.pip_in_pip_suits,
+        assets_model.site_packages,
+    )
 
 
 def replace_urllib3():
-    dir_i = assets_model.urllib3_in_pip_suits + '/' + 'urllib3'
-    dir_o = assets_model.urllib3
-    if not exists(dir_i):
-        lk.logt('[D4214]', 'urllib3 not downloaded')
-        return
-    os.rename(dir_o, dir_o + '_bak')
-    shutil.copytree(dir_i, dir_o)
+    os.rename(
+        assets_model.urllib3,
+        assets_model.urllib3 + '_bak'
+    )
+    return _copy_resources(
+        assets_model.urllib3_in_pip_suits,
+        assets_model.pip_vendor,
+        exclusions=('urllib3-1.25.11.dist-info',)
+    )
+
+
+def _copy_resources(parent_dir_i, parent_dir_o, exclusions=()):
+    out = []
+    
+    for dp, dn in find_dirs(parent_dir_i, fmt='zip'):
+        if dn in exclusions:
+            continue
+        dp_i, dp_o = dp, f'{parent_dir_o}/{dn}'
+        shutil.copytree(dp_i, dp_o)
+        out.append(dp_o)
+    
+    for fp, fn in find_files(parent_dir_i, fmt='zip'):
+        if fn in exclusions:
+            continue
+        fp_i, fp_o = fp, f'{parent_dir_o}/{fn}'
+        shutil.copytree(fp_i, fp_o)
+        out.append(fp_o)
+    
+    return out

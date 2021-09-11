@@ -46,6 +46,7 @@ class AssetsPathModel:
         
         self.setuptools = f'{self.site_packages}/setuptools'
         self.pip = f'{self.site_packages}/pip'
+        self.pip_vendor = f'{self.pip}/_vendor'
         self.urllib3 = f'{self.pip}/_vendor/urllib3'
         self.pip_egg = f'{self.site_packages}/'
         self.pip_script = f'{self.scripts}/pip.exe'

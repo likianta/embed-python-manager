@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "embed-python-manager"
-version = "0.2.2"
+version = "0.2.3"
 description = "Download and manage embedded python versions."
 authors = ["Likianta <likianta@foxmail.com>"]
 license = "MIT"

@@ -204,7 +204,7 @@ def _copy_resources(parent_dir_i, parent_dir_o, exclusions=()):
         if fn in exclusions:
             continue
         fp_i, fp_o = fp, f'{parent_dir_o}/{fn}'
-        shutil.copytree(fp_i, fp_o)
+        shutil.copyfile(fp_i, fp_o)
         out.append(fp_o)
     
     return out

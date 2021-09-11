@@ -18,6 +18,7 @@ from os.path import exists
 
 from lk_logger import lk
 from lk_utils import find_dirs
+from lk_utils import find_files
 from lk_utils import run_cmd_shell
 
 from .downloader import download
@@ -113,7 +114,7 @@ def get_setuptools():
     for dp, dn in find_dirs(dir_i, fmt='zip'):
         shutil.copytree(dp, x := f'{dir_o}/{dn}')
         out.append(x)
-    for fp, fn in find_dirs(dir_i, fmt='zip'):
+    for fp, fn in find_files(dir_i, fmt='zip'):
         shutil.copyfile(fp, x := f'{dir_o}/{fn}')
         out.append(x)
     return out
@@ -143,7 +144,7 @@ def get_pip():
     for dp, dn in find_dirs(dir_i, fmt='zip'):
         shutil.copytree(dp, x := f'{dir_o}/{dn}')
         out.append(x)
-    for fp, fn in find_dirs(dir_i, fmt='zip'):
+    for fp, fn in find_files(dir_i, fmt='zip'):
         shutil.copyfile(fp, x := f'{dir_o}/{fn}')
         out.append(x)
     return out

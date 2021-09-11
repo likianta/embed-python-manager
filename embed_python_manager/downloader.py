@@ -21,6 +21,9 @@ class EmbedPythonDownloader:
                  dl_dir=assets_model.python_dir):
         self.source = loads(f'{prj_model.source_list}/{source_filename}')
         self.dl_dir = dl_dir
+        
+    def test_internet_connection(self):
+        pass
     
     def change_source(self, source):
         """

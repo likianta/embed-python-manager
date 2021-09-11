@@ -116,7 +116,7 @@ def download(link, file, exist_ok=True):
         #       ref: https://stackoverflow.com/questions/34950201/pycharm
         #            -print-end-r-statement-not-working
     
-    lk.loga('downloading', link, file)
+    lk.logp(link, file, title='downloading')
     # https://blog.csdn.net/weixin_39790282/article/details/90170218
     request.urlretrieve(link, file, _update_progress)
     print(' --> done')  # this message will be added to the end of progress.

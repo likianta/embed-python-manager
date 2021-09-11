@@ -21,7 +21,7 @@ class EmbedPythonDownloader:
                  dl_dir=assets_model.python_dir):
         self.source = loads(f'{prj_model.source_list}/{source_filename}')
         self.dl_dir = dl_dir
-        
+    
     def test_internet_connection(self):
         pass
     
@@ -91,7 +91,13 @@ class EmbedPythonDownloader:
             os.rename(pth_file, pth_file + '.bak')
 
 
-def download(link, file):
+def download(link, file, exist_ok=True):
+    if exists(file):
+        if exist_ok:
+            return file
+        else:
+            raise FileExistsError(file)
+    
     def _update_progress(block_num, block_size, total_size):
         """
 
@@ -118,9 +124,18 @@ def download(link, file):
     return file
 
 
-def extract(file_i, dir_o, type_='zip'):
+def extract(file_i, dir_o, type_='zip', exist_ok=True):
     if not dir_o:
         dir_o = file_i.removesuffix('.zip')
+    if exists(dir_o):
+        if os.listdir(dir_o):
+            if exist_ok:
+                return dir_o
+            else:
+                raise FileExistsError(dir_o)
+        else:
+            os.remove(dir_o)
+    
     if type_ == 'zip':
         file_handle = ZipFile(file_i)
     else:

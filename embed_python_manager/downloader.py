@@ -2,6 +2,7 @@ import os
 import tarfile
 from os.path import dirname
 from os.path import exists
+from os.path import splitext
 from time import strftime
 from urllib import request
 from zipfile import ZipFile
@@ -126,7 +127,7 @@ def download(link, file, exist_ok=True):
 
 def extract(file_i, dir_o, type_='zip', exist_ok=True):
     if not dir_o:
-        dir_o = file_i.removesuffix('.zip')
+        dir_o = splitext(file_i)[0]
     if exists(dir_o):
         if os.listdir(dir_o):
             if exist_ok:

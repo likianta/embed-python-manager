@@ -1,4 +1,5 @@
 import shutil
+from os.path import dirname
 from os.path import exists
 from typing import Union
 
@@ -11,7 +12,7 @@ from .pyversion import PyVersion
 
 class EmbedPythonManager:
     
-    def __init__(self, pyversion: Union[str, PyVersion]):
+    def __init__(self, pyversion: Union[str, PyVersion], system_python=''):
         if isinstance(pyversion, str):
             self.pyversion = PyVersion(pyversion)
         else:
@@ -23,6 +24,7 @@ class EmbedPythonManager:
 
         self._downloader = EmbedPythonDownloader(dl_dir=self.model.python_dir)
 
+        self.system_python = system_python
         self.python = f'{self.model.python_dir}/python.exe'
         self.pythonw = f'{self.model.python_dir}/pythonw.exe'
     
@@ -46,12 +48,14 @@ class EmbedPythonManager:
                 pip_suits.download_urllib3_compatible(self.pyversion)
                 pip_suits.replace_urllib3()
         
-        if add_tk_suits and (
-                d := input('Input System {} directory (abspath only): '.format(
+        if add_tk_suits:
+            if self.system_python:
+                d = dirname(self.system_python)
+            else:
+                d = input('Input System {} directory (abspath only): '.format(
                     str(self.pyversion).title()
                 ))
-        ):
-            tk_suits.copy_tkinter(d)
+            tk_suits.copy_tkinter(d, self.model.python_dir)
     
     def download(self):
         self.deploy(False, False)

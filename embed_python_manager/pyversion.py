@@ -47,4 +47,4 @@ class PyVersion:
             self._version = 'python39' -> '39'
             self._version = 'python39-32' -> '39-32'
         """
-        return self._version.removeprefix('python')
+        return self._version.replace('python', '')

@@ -15,7 +15,7 @@ class ProjectPathModel:
 
 class AssetsPathModel:
     
-    def __init__(self, pyversion):
+    def __init__(self, pyversion: PyVersion):
         self.assets = f'{ASSETS_ENTRY}/assets'
         
         self.embed_python = f'{self.assets}/embed_python'
@@ -32,7 +32,7 @@ class AssetsPathModel:
         self.indexing_dirs(pyversion)
     
     # noinspection PyAttributeOutsideInit
-    def indexing_dirs(self, pyversion):
+    def indexing_dirs(self, pyversion: PyVersion):
         self.pyversion = pyversion
         
         self.python_dir = f'{self.system}/{pyversion}'

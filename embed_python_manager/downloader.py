@@ -75,6 +75,8 @@ class EmbedPythonDownloader:
         
         if disable_pth_file:
             self.disable_pth_file(dir_o, pyversion)
+            
+        return dir_o
     
     @staticmethod
     def disable_pth_file(dir_, pyversion=None):

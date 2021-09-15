@@ -102,8 +102,12 @@ def download_pip_src(pyversion: PyVersion):
     file = download(
         link, dirname(assets_model.pip_src_in_pip_suits) + '/' + name)
     dir_ = extract(file, assets_model.pip_src_in_pip_suits, type_='tar')
-    os.rename(f'{dir_}/{name.replace(".tar.gz", "")}', f'{dir_}/pip')
-    return f'{dir_}/pip'
+    
+    sole_sub_dir_before = f'{dir_}/{name.replace(".tar.gz", "")}'
+    sole_sub_dir_after = f'{dir_}/pip'
+    if exists(sole_sub_dir_before):
+        os.rename(sole_sub_dir_before, sole_sub_dir_after)
+    return sole_sub_dir_after
 
 
 def download_pip(pyversion: PyVersion):
@@ -148,7 +152,7 @@ def download_urllib3_compatible(pyversion: PyVersion):
 # ------------------------------------------------------------------------------
 
 def get_setuptools():
-    return _copy_resources(
+    return copy_resources(
         assets_model.setuptools_in_pip_suits,
         assets_model.site_packages,
     )
@@ -172,25 +176,29 @@ def get_pip_scripts():
 
 
 def get_pip():
-    return _copy_resources(
+    return copy_resources(
         assets_model.pip_in_pip_suits,
         assets_model.site_packages,
     )
 
 
 def replace_urllib3():
+    if exists(x := assets_model.urllib3 + '_bak'):
+        lk.logt('[W5219]', '"urllib3_bak" dir already exists. you need to '
+                           'delete the then try again.')
+        return x
     os.rename(
         assets_model.urllib3,
         assets_model.urllib3 + '_bak'
     )
-    return _copy_resources(
+    return copy_resources(
         assets_model.urllib3_in_pip_suits,
         assets_model.pip_vendor,
         exclusions=('urllib3-1.25.11.dist-info',)
     )
 
 
-def _copy_resources(parent_dir_i, parent_dir_o, exclusions=()):
+def copy_resources(parent_dir_i, parent_dir_o, exclusions=()):
     out = []
     
     for dp, dn in find_dirs(parent_dir_i, fmt='zip'):

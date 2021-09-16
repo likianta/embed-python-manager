@@ -38,7 +38,7 @@ class EmbedPythonManager:
                 '(internet connection maybe required)')
 
         lk.loga('download and extract embed_python')
-        d = self._downloader.main(self.pyversion, disable_pth_file=True)
+        self._downloader.main(self.pyversion, disable_pth_file=True)
         
         if add_pip_suits:
             if not self.has_setuptools:

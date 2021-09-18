@@ -1,6 +1,5 @@
+import os
 import shutil
-from os import listdir
-from os import remove
 from os.path import dirname
 from os.path import exists
 from typing import Union
@@ -21,13 +20,13 @@ class EmbedPythonManager:
             self.pyversion = PyVersion(pyversion)
         else:
             self.pyversion = pyversion
-            
+        
         assets_model.indexing_dirs(self.pyversion)
         assets_model.build_dirs()
         self.model = assets_model
-
+        
         self._downloader = EmbedPythonDownloader(dl_dir=self.model.python_dir)
-
+        
         self.system_python = system_python
         self.python = f'{self.model.python_dir}/python.exe'
         self.pythonw = f'{self.model.python_dir}/pythonw.exe'
@@ -36,7 +35,7 @@ class EmbedPythonManager:
                add_tk_suits=False):
         lk.logt('[I0921]', 'depoly local embed python',
                 '(internet connection maybe required)')
-
+        
         lk.loga('download and extract embed_python')
         self._downloader.main(self.pyversion, disable_pth_file=True)
         
@@ -50,12 +49,12 @@ class EmbedPythonManager:
                 lk.loga('download and extract pip (tarfile)')
                 pip_suits.download_pip_src(self.pyversion)
                 pip_suits.get_pip_scripts()
-                
+            
             if not self.has_pip:
                 lk.loga('download and extract pip (whlfile)')
                 pip_suits.download_pip(self.pyversion)
                 pip_suits.get_pip()
-
+                
                 lk.loga('replace ~/pip/_venvdor/urllib3 with a lower version')
                 pip_suits.download_urllib3_compatible(self.pyversion)
                 pip_suits.replace_urllib3()
@@ -86,22 +85,22 @@ class EmbedPythonManager:
     
     def download(self):
         self.deploy(False, False)
-
+    
     def copy_to(self, dst_dir):
         shutil.copytree(self.model.python_dir, dst_dir)
-
+    
     def move_to(self, dst_dir):
         # warning: if dst_dir exists, `shutil.move(src_dir, dst_dir)` will
         # create a subdir in dst_dir; if not exists, will create dir_dir and
         # move. we prevent this behavior and make sure there's only case#2
         # happend.
         if exists(dst_dir):
-            if listdir(dst_dir):
+            if os.listdir(dst_dir):
                 raise FileExistsError(dst_dir)
             else:
-                remove(dst_dir)
+                os.remove(dst_dir)
         shutil.move(self.model.python_dir, dst_dir)
-
+    
     def change_source(self, source):
         self._downloader.change_source(source)
     
@@ -114,20 +113,44 @@ class EmbedPythonManager:
     
     @property
     def has_setuptools(self):
-        return exists(self.model.setuptools)
+        return _exists(self.model.setuptools)
     
     @property
     def has_pip(self):
-        return exists(self.model.pip)
+        return _exists(self.model.pip)
     
     @property
     def has_pip_scripts(self):
-        return exists(self.model.pip_script)
-
+        return _exists(self.model.pip_script)
+    
     @property
-    def has_tkinter(self):
-        return listdir(self.model.tk_suits_py3)  # FIXME
+    def has_tkinter(self):  # FIXME
+        return _exists(self.model.tk_suits_py3)
     
     @property
     def has_tkinter_installed_in_python_dir(self):
-        return exists(f'{self.model.python_dir}/tkinter')
+        return _exists(f'{self.model.python_dir}/tkinter')
+
+
+def _exists(path) -> bool:
+    """
+    Flow:
+        exists?
+            Y -> isdir?
+                Y -> is dir not empty?
+                    Y -> truely exists
+                    N -> delete empty dir, returns false
+                N -> an existed fiel, returns true
+            N -> not exists, returns false
+    """
+    if exists(path):
+        if os.path.isdir(path):
+            if os.listdir(path):
+                return True
+            else:
+                os.remove(path)
+                return False
+        else:
+            return True
+    else:
+        return False

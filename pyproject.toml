@@ -11,9 +11,9 @@ url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/"
 default = true
 
 [tool.poetry.dependencies]
-python = ">=3.8"
-lk-logger = ">=4.0.2"
-lk-utils = ">=2.0.0b0"
+python = "^3.8"
+lk-logger = ""
+lk-utils = ""
 pyyaml = "*"
 
 [tool.poetry.dev-dependencies]

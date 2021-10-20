@@ -1,3 +1,3 @@
-lk-logger>=4.0.2
-lk-utils>=2.0.0b0
+lk-logger
+lk-utils
 pyyaml

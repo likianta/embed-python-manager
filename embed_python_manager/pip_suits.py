@@ -33,15 +33,15 @@ Example:
     ~/assets/pip_suits/python3
     |
     |
-    |- pip-21.2.4-py3-none-any.whl  # 1.1. download whl file
+    |- pip-21.3.1-py3-none-any.whl  # 1.1. download whl file
     |= pip  # 1.2. extract whl file (notice there're two dirs)
         |= pip
-        |= pip-21.2.4.dist-info
+        |= pip-21.3.1.dist-info
     |
     |
-    |- pip-21.2.4.tar.gz  # 2.1. download tar file
+    |- pip-21.3.1.tar.gz  # 2.1. download tar file
     |= pip_src  # 2.2. extract tar file
-        |= pip-21.2.4  # 2.3. we will rename it to 'pip'. see `download_pip_src`
+        |= pip-21.3.1  # 2.3. we will rename it to 'pip'. see `download_pip_src`
             |- setup.py
             |- ...
         |- @PaxHeader
@@ -92,9 +92,9 @@ def download_pip_src(pyversion: PyVersion):
                '9076dbc354cc8c63ffc2d6f1ef360f49ad0fbcce19d68538/pip-20.3.4.t' \
                'ar.gz'
     elif pyversion.major == 3:
-        name = 'pip-21.2.4.tar.gz'  # 2021-09-09
-        link = 'https://pypi.tuna.tsinghua.edu.cn/packages/52/e1/06c018197d81' \
-               '51383f66ebf6979d951995cf495629fc54149491f5d157d0/pip-21.2.4.t' \
+        name = 'pip-21.3.1.tar.gz'  # updated 2021-10-25
+        link = 'https://pypi.tuna.tsinghua.edu.cn/packages/da/f6/c83229dcc363' \
+               '5cdeb51874184241a9508ada15d8baa337a41093fab58011/pip-21.3.1.t' \
                'ar.gz'
     else:
         raise Exception(pyversion)
@@ -117,9 +117,9 @@ def download_pip(pyversion: PyVersion):
                '46ff0d584327ae44e7500daf6764ca1a382d2d02789accf7/pip-20.3.4-p' \
                'y2.py3-none-any.whl'
     elif pyversion.major == 3:
-        name = 'pip-21.2.4-py3-none-any.whl'  # 2021-09-09
-        link = 'https://pypi.tuna.tsinghua.edu.cn/packages/ca/31/b88ef447d595' \
-               '963c01060998cb329251648acf4a067721b0452c45527eb8/pip-21.2.4-p' \
+        name = 'pip-21.3.1-py3-none-any.whl'  # updated 2021-10-25
+        link = 'https://pypi.tuna.tsinghua.edu.cn/packages/a4/6d/6463d49a933f' \
+               '547439d6b5b98b46af8742cc03ae83543e4d7688c2420f8b/pip-21.3.1-p' \
                'y3-none-any.whl'
     else:
         raise Exception(pyversion)

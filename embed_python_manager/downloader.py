@@ -7,7 +7,6 @@ from time import strftime
 from urllib import request
 from zipfile import ZipFile
 
-from lk_logger import lk
 from lk_utils import loads
 
 from .env import SYSTEM
@@ -75,7 +74,7 @@ class EmbedPythonDownloader:
         
         if disable_pth_file:
             self.disable_pth_file(dir_o, pyversion)
-            
+        
         return dir_o
     
     @staticmethod
@@ -95,6 +94,8 @@ class EmbedPythonDownloader:
 
 
 def download(link, file, exist_ok=True):
+    from lk_logger.general import std_print
+    
     if exists(file):
         if exist_ok:
             return file
@@ -111,18 +112,19 @@ def download(link, file, exist_ok=True):
         """
         percent = block_size * block_num / total_size * 100
         if percent > 100: percent = 100
-        print('\r    {}\t{:.2f}%'.format(
-            strftime('%H:%M:%S'), percent), end='')
+        std_print('\r    {}\t{:.2f}%'.format(
+            strftime('%H:%M:%S'), percent), end=''
+        )
         #   why put `\r` in the first param?
         #       because it doesn't work in pycharm if we pass it to
         #       `params:end`
         #       ref: https://stackoverflow.com/questions/34950201/pycharm
         #            -print-end-r-statement-not-working
     
-    lk.logp(link, file, title='downloading')
+    print('downloading', link, file)
     # https://blog.csdn.net/weixin_39790282/article/details/90170218
     request.urlretrieve(link, file, _update_progress)
-    print(' --> done')  # this message will be added to the end of progress.
+    std_print(' --> done')  # this message will be added to the end of progress.
     
     return file
 

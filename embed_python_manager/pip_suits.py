@@ -17,7 +17,6 @@ import shutil
 from os.path import dirname
 from os.path import exists
 
-from lk_logger import lk
 from lk_utils import find_dirs
 from lk_utils import find_files
 from lk_utils import run_cmd_shell
@@ -136,7 +135,7 @@ def download_urllib3_compatible(pyversion: PyVersion):
         https://blog.csdn.net/shizheng_Li/article/details/115838420
     """
     if pyversion.major == 2:
-        lk.logt('[I3412]', 'no need to download urllib3 compatible version')
+        print(':v2', 'no need to download urllib3 compatible version')
         return
     
     name = 'urllib3-1.25.9-py2.py3-none-any.whl'
@@ -167,7 +166,7 @@ def get_pip_scripts():
     assert exists(assets_model.pip_script)
     
     # find and remove pip egg dir in site-packages
-    for dp, dn in find_dirs(assets_model.site_packages, fmt='zip'):
+    for dp, dn in find_dirs(assets_model.site_packages):
         if dn.startswith('pip-') and dn.endswith('.egg'):
             shutil.rmtree(dp)
             break
@@ -184,8 +183,8 @@ def get_pip():
 
 def replace_urllib3():
     if exists(x := assets_model.urllib3 + '_bak'):
-        lk.logt('[W5219]', '"urllib3_bak" dir already exists. you need to '
-                           'delete the then try again.')
+        print(':v3', '"urllib3_bak" dir already exists. you need to delete the '
+                     'then try again.')
         return x
     os.rename(
         assets_model.urllib3,
@@ -201,14 +200,14 @@ def replace_urllib3():
 def copy_resources(parent_dir_i, parent_dir_o, exclusions=()):
     out = []
     
-    for dp, dn in find_dirs(parent_dir_i, fmt='zip'):
+    for dp, dn in find_dirs(parent_dir_i):
         if dn in exclusions:
             continue
         dp_i, dp_o = dp, f'{parent_dir_o}/{dn}'
         shutil.copytree(dp_i, dp_o)
         out.append(dp_o)
     
-    for fp, fn in find_files(parent_dir_i, fmt='zip'):
+    for fp, fn in find_files(parent_dir_i):
         if fn in exclusions:
             continue
         fp_i, fp_o = fp, f'{parent_dir_o}/{fn}'

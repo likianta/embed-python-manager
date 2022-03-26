@@ -4,8 +4,6 @@ from os.path import dirname
 from os.path import exists
 from typing import Union
 
-from lk_logger import lk
-
 from . import pip_suits
 from . import tk_suits
 from .downloader import EmbedPythonDownloader
@@ -33,29 +31,29 @@ class EmbedPythonManager:
     
     def deploy(self, add_pip_suits=True, add_pip_scripts=True,
                add_tk_suits=False):
-        lk.logt('[I0921]', 'depoly local embed python',
-                '(internet connection maybe required)')
+        print(':v2', '[I0921]', 'depoly local embed python (internet '
+                                'connection maybe required)')
         
-        lk.loga('download and extract embed_python')
+        print('download and extract embed_python')
         self._downloader.main(self.pyversion, disable_pth_file=True)
         
         if add_pip_suits:
             if not self.has_setuptools:
-                lk.loga('download and extract setuptools')
+                print('download and extract setuptools')
                 pip_suits.download_setuptools(self.pyversion)
                 pip_suits.get_setuptools()
             
             if add_pip_scripts and not self.has_pip_scripts:
-                lk.loga('download and extract pip (tarfile)')
+                print('download and extract pip (tarfile)')
                 pip_suits.download_pip_src(self.pyversion)
                 pip_suits.get_pip_scripts()
             
             if not self.has_pip:
-                lk.loga('download and extract pip (whlfile)')
+                print('download and extract pip (whlfile)')
                 pip_suits.download_pip(self.pyversion)
                 pip_suits.get_pip()
                 
-                lk.loga('replace ~/pip/_venvdor/urllib3 with a lower version')
+                print('replace ~/pip/_venvdor/urllib3 with a lower version')
                 pip_suits.download_urllib3_compatible(self.pyversion)
                 pip_suits.replace_urllib3()
         
@@ -65,7 +63,7 @@ class EmbedPythonManager:
                     dir_i = dirname(self.system_python)
                 else:
                     from textwrap import dedent
-                    lk.logt('[I1500]', dedent('''
+                    print(':v2', '[I1500]', dedent('''
                         tkinter suits are not found. you need to install a
                         regular python ({}) in your computer and pass its
                         dirpath below.
@@ -74,13 +72,13 @@ class EmbedPythonManager:
                         str(self.pyversion).title()
                     ))
                 dir_o = self.model.tk_suits_py3
-                lk.loga('copying files from "{}" to "{}"'.format(dir_i, dir_o))
+                print('copying files from "{}" to "{}"'.format(dir_i, dir_o))
                 tk_suits.copy_tkinter(dir_i, dir_o)
             if not self.has_tkinter_installed_in_python_dir:
                 from .pip_suits import copy_resources
                 dir_i = self.model.tk_suits_py3
                 dir_o = self.model.python_dir
-                lk.loga('copying files from "{}" to "{}"'.format(dir_i, dir_o))
+                print('copying files from "{}" to "{}"'.format(dir_i, dir_o))
                 copy_resources(dir_i, dir_o)
     
     def download(self):
